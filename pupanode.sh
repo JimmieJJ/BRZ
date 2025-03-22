@@ -94,6 +94,9 @@ install_node() {
     REFERRAL_CODES=(
         "cf0a19cea1a14ac3"
         "d166c6a2d6980616"
+        "217cbde6e78b5203"
+        "cd9b434a0a989c68"
+        "ee58287a7861fa90"
     )
     
     # Выбираем случайный код из массива
