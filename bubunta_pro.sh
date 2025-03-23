@@ -524,27 +524,28 @@ show_help() {
 
 # Функция отображения меню
 show_menu() {
-    while true; do
-        print_header
-        echo -e "${YELLOW}Выберите действие:${NC}"
-        echo "1) Настроить глобальный прокси"
-        echo "2) Восстановить исходную конфигурацию"
-        echo "3) Проверить настройки прокси"
-        echo "4) Показать справку"
-        echo "0) Выход"
-        echo
-        read -p "Ваш выбор [0-4]: " choice
-        
-        case $choice in
-            1) setup_proxy; break ;;
-            2) restore_config; break ;;
-            3) check_proxy; break ;;
-            4) show_help; read -p "Нажмите Enter для продолжения..." ;;
-            0) echo "Выход из программы."; exit 0 ;;
-            *) echo -e "${RED}Неверный выбор. Попробуйте снова.${NC}" 
-               read -p "Нажмите Enter для продолжения..." ;;
-        esac
-    done
+    print_header
+    echo -e "${YELLOW}Выберите действие:${NC}"
+    echo "1) Настроить глобальный прокси"
+    echo "2) Восстановить исходную конфигурацию"
+    echo "3) Проверить настройки прокси"
+    echo "4) Показать справку"
+    echo "0) Выход"
+    echo
+    read -p "Ваш выбор [0-4]: " choice
+    
+    case $choice in
+        1) setup_proxy ;;
+        2) restore_config ;;
+        3) check_proxy ;;
+        4) show_help; read -p "Нажмите Enter для продолжения..."; show_menu ;;
+        0) echo "Выход из программы."; exit 0 ;;
+        *)
+            echo -e "${RED}Неверный выбор. Попробуйте снова.${NC}"
+            read -p "Нажмите Enter для продолжения..."
+            show_menu
+            ;;
+    esac
 }
 
 # Обработка аргументов командной строки
@@ -560,6 +561,8 @@ case "$1" in
         ;;
     help)
         show_help
+        read -p "Нажмите Enter для возврата в меню..."
+        show_menu
         ;;
     *)
         show_menu
