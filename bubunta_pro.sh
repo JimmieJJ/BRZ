@@ -1,23 +1,4 @@
 #!/bin/bash
-
-# Функция для проверки корректности IP-адреса
-validate_ip() {
-    if [[ $1 =~ ^[0-9]+\.[0-9]+\.[0-9]+\.[0-9]+$ ]]; then
-        return 0
-    else
-        return 1
-    fi
-}
-
-# Функция для проверки корректности номера порта
-validate_port() {
-    if [[ $1 =~ ^[0-9]+$ ]] && [ $1 -ge 1 ] && [ $1 -le 65535 ]; then
-        return 0
-    else
-        return 1
-    fi
-}
-
 # Проверка прав суперпользователя
 if [ "$EUID" -ne 0 ]; then
     echo "Запустите скрипт с правами суперпользователя (sudo)."
@@ -25,24 +6,8 @@ if [ "$EUID" -ne 0 ]; then
 fi
 
 # Запрос данных у пользователя
-while true; do
     read -p "Введите IP-адрес прокси: " PROXY_IP
-    if validate_ip "$PROXY_IP"; then
-        break
-    else
-        echo "Некорректный IP-адрес. Попробуйте снова."
-    fi
-done
-
-while true; do
     read -p "Введите порт прокси: " PROXY_PORT
-    if validate_port "$PROXY_PORT"; then
-        break
-    else
-        echo "Некорректный номер порта. Попробуйте снова."
-    fi
-done
-
 read -p "Введите логин для прокси: " PROXY_USER
 read -p "Введите пароль для прокси: " PROXY_PASS
 
