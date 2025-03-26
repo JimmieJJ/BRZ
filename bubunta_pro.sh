@@ -1,61 +1,62 @@
 #!/bin/bash
-
-# Функция для проверки корректности IP-адреса
-validate_ip() {
-    if [[ $1 =~ ^[0-9]+\.[0-9]+\.[0-9]+\.[0-9]+$ ]]; then
-        return 0
-    else
-        return 1
-    fi
-}
-
-# Функция для проверки корректности номера порта
-validate_port() {
-    if [[ $1 =~ ^[0-9]+$ ]] && [ $1 -ge 1 ] && [ $1 -le 65535 ]; then
-        return 0
-    else
-        return 1
-    fi
-}
-
 # Проверка прав суперпользователя
 if [ "$EUID" -ne 0 ]; then
     echo "Запустите скрипт с правами суперпользователя (sudo)."
     exit 1
 fi
 
-# Запрос данных у пользователя
-while true; do
-    read -p "Введите IP-адрес прокси: " PROXY_IP
-    if validate_ip "$PROXY_IP"; then
-        break
-    else
-        echo "Некорректный IP-адрес. Попробуйте снова."
-    fi
-done
+# Инициализация переменных с проверкой ввода
+PROXY_IP=""
+PROXY_PORT=""
+PROXY_USER=""
+PROXY_PASS=""
+PROXY_TYPE=""
 
-while true; do
-    read -p "Введите порт прокси: " PROXY_PORT
-    if validate_port "$PROXY_PORT"; then
-        break
-    else
-        echo "Некорректный номер порта. Попробуйте снова."
-    fi
-done
+# Функция для интерактивного ввода с валидацией
+input_proxy_details() {
+    # IP-адрес
+    while [ -z "$PROXY_IP" ]; do
+        read -p "Введите IP-адрес прокси: " input
+        if validate_ip "$input"; then
+            PROXY_IP="$input"
+        else
+            echo "Некорректный IP-адрес. Попробуйте снова."
+        fi
+    done
 
-read -p "Введите логин для прокси: " PROXY_USER
-read -p "Введите пароль для прокси: " PROXY_PASS
+    # Порт
+    while [ -z "$PROXY_PORT" ]; do
+        read -p "Введите порт прокси: " input
+        if validate_port "$input"; then
+            PROXY_PORT="$input"
+        else
+            echo "Некорректный номер порта. Попробуйте снова."
+        fi
+    done
 
-while true; do
-    read -p "Выберите тип прокси (socks5/http) [по умолчанию socks5]: " PROXY_TYPE
-    PROXY_TYPE=${PROXY_TYPE:-socks5}
-    if [[ "$PROXY_TYPE" == "socks5" || "$PROXY_TYPE" == "http" ]]; then
-        break
-    else
-        echo "Некорректный тип прокси. Введите socks5 или http."
-    fi
-done
+    # Логин
+    read -p "Введите логин для прокси: " PROXY_USER
 
+    # Пароль
+    read -sp "Введите пароль для прокси: " PROXY_PASS
+    echo  # Переход на новую строку после ввода пароля
+
+    # Тип прокси
+    while [ -z "$PROXY_TYPE" ]; do
+        read -p "Выберите тип прокси (socks5/http) [по умолчанию socks5]: " input
+        input=${input:-socks5}
+        if [[ "$input" == "socks5" || "$input" == "http" ]]; then
+            PROXY_TYPE="$input"
+        else
+            echo "Некорректный тип прокси. Введите socks5 или http."
+        fi
+    done
+}
+
+# Вызов функции интерактивного ввода
+input_proxy_details
+
+# Далее весь скрипт использует эти переменные как обычно
 # Создаем полный скрипт с подставленными параметрами
 cat > /usr/local/bin/setup_proxy.sh << 'EOORIGINAL'
 #!/bin/bash
